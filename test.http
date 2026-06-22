@@ -1,0 +1,17 @@
+### Test a valid Chirp
+POST http://localhost:8080/api/validate_chirp
+Content-Type: application/json
+
+{
+  "body": "This is a perfectly valid short chirp!"
+}
+
+###
+
+### Test a Chirp that is too long
+POST http://localhost:8080/api/validate_chirp
+Content-Type: application/json
+
+{
+  "body": "This is an extremely long chirp designed specifically to exceed the maximum character limit of one hundred and forty characters that we have set for our backend validation rules."
+}

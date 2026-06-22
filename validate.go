@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func (cfg *apiConfig) handlerValidate(w http.ResponseWriter, r *http.Request) {
@@ -37,8 +38,10 @@ func (cfg *apiConfig) handlerValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	clean_body := censorWords(params.Body)
+
 	resp := validResponse{
-		Valid: true,
+		CleanedBody: clean_body,
 	}
 
 	dat, err := json.Marshal(resp)
@@ -53,9 +56,21 @@ func (cfg *apiConfig) handlerValidate(w http.ResponseWriter, r *http.Request) {
 }
 
 type validResponse struct {
-	Valid bool `json:"valid"`
+	CleanedBody string `json:"cleaned_body"`
 }
 
 type errResponse struct {
 	Error string `json:"error"`
+}
+
+func censorWords(s string) string {
+	splitUp := strings.Split(s, " ")
+	for i, word := range splitUp {
+		word = strings.ToLower(word)
+		if word == "kerfuffle" || word == "sharbert" || word == "fornax" {
+			splitUp[i] = "****"
+		}
+	}
+	cleaned := strings.Join(splitUp, " ")
+	return cleaned
 }
