@@ -10,14 +10,14 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-Insert into users (id, created_at, updated_at, email)
-values (
+INSERT INTO users (id, created_at, updated_at, email)
+VALUES (
     gen_random_uuid(),
     NOW(),
     NOW(),
     $1
 )
-returning id, created_at, updated_at, email
+RETURNING id, created_at, updated_at, email
 `
 
 func (q *Queries) CreateUser(ctx context.Context, email string) (User, error) {
@@ -30,13 +30,4 @@ func (q *Queries) CreateUser(ctx context.Context, email string) (User, error) {
 		&i.Email,
 	)
 	return i, err
-}
-
-const deleteUsers = `-- name: DeleteUsers :exec
-Delete from users
-`
-
-func (q *Queries) DeleteUsers(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteUsers)
-	return err
 }
