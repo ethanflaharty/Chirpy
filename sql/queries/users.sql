@@ -17,4 +17,4 @@ where email = $1;
 update users
 set email = $1, hashed_password = $2, updated_at = now()
 where id = $3
-RETURNING id, email, hashed_password, created_at, updated_at;
+RETURNING *;

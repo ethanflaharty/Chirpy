@@ -8,7 +8,7 @@ import (
 	"github.com/ethanflaharty/Chirpy/internal/database"
 )
 
-func (cfg *apiConfig) handlerAuthorization(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Password string `json:"password"`
 		Email    string `json:"email"`
@@ -43,7 +43,7 @@ func (cfg *apiConfig) handlerAuthorization(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	userUpdate, err := cfg.db.UpdateUser(r.Context(), database.UpdateUserParams{
+	user, err := cfg.db.UpdateUser(r.Context(), database.UpdateUserParams{
 		Email:          params.Email,
 		HashedPassword: hashPass,
 		ID:             userID,
@@ -55,10 +55,11 @@ func (cfg *apiConfig) handlerAuthorization(w http.ResponseWriter, r *http.Reques
 
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
-			ID:        userUpdate.ID,
-			CreatedAt: userUpdate.CreatedAt,
-			UpdatedAt: userUpdate.UpdatedAt,
-			Email:     userUpdate.Email,
+			ID:          user.ID,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
+			Email:       user.Email,
+			IsChirpyRed: user.IsChirpyRed,
 		},
 	})
 }
