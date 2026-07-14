@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ethanflaharty/Chirpy/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -27,8 +28,23 @@ func (cfg *apiConfig) handlerWebhooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			respondWithError(w, http.StatusNoContent, "Couldn't find API key", err)
+			return
+		}
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized API key", err)
+		return
+	}
+
+	if apiKey != cfg.polkaKey {
+		respondWithError(w, http.StatusUnauthorized, "Incorrect API key", err)
+		return
+	}
+
 	if params.Event != "user.upgraded" {
-		respondWithError(w, http.StatusNoContent, "User is not upgraded", err)
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
