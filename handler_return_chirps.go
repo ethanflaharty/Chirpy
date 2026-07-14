@@ -2,12 +2,14 @@ package main
 
 import (
 	"net/http"
+	"sort"
 
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request) {
 	authorQuery := r.URL.Query().Get("author_id")
+	sortQuery := r.URL.Query().Get("sort")
 
 	if authorQuery != "" {
 		parseID, err := uuid.Parse(authorQuery)
@@ -34,6 +36,23 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 			chirps = append(chirps, chirp)
 		}
 
+		if sortQuery != "" {
+			switch sortQuery {
+			case "desc":
+				sort.Slice(chirps, func(i, j int) bool {
+					return chirps[i].CreatedAt.After(chirps[j].CreatedAt)
+				})
+				respondWithJSON(w, http.StatusOK, chirps)
+				return
+			case "asc":
+				respondWithJSON(w, http.StatusOK, chirps)
+				return
+			default:
+				respondWithJSON(w, http.StatusOK, chirps)
+				return
+			}
+		}
+
 		respondWithJSON(w, http.StatusOK, chirps)
 		return
 	}
@@ -54,6 +73,23 @@ func (cfg *apiConfig) handlerReturnChirps(w http.ResponseWriter, r *http.Request
 			Body:      dbChirp.Body,
 		}
 		chirps = append(chirps, chirp)
+	}
+
+	if sortQuery != "" {
+		switch sortQuery {
+		case "desc":
+			sort.Slice(chirps, func(i, j int) bool {
+				return chirps[i].CreatedAt.After(chirps[j].CreatedAt)
+			})
+			respondWithJSON(w, http.StatusOK, chirps)
+			return
+		case "asc":
+			respondWithJSON(w, http.StatusOK, chirps)
+			return
+		default:
+			respondWithJSON(w, http.StatusOK, chirps)
+			return
+		}
 	}
 
 	respondWithJSON(w, http.StatusOK, chirps)
